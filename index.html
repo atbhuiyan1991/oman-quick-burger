@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quick Order Menu | EN / AR Catalog</title>
+  <title>Quick Order Menu | EN / AR</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,7 +11,7 @@
     <div class="header-content">
       <div>
         <h1 id="storeName">Velvet Crumb & Treats</h1>
-        <p class="subtitle" id="storeSubtitle">Select your items and send your order directly on WhatsApp</p>
+        <p class="subtitle" id="storeSubtitle">Tap + to add items and order directly on WhatsApp</p>
       </div>
       <div class="header-actions">
         <div class="lang-switch" role="group" aria-label="Language Switcher">
@@ -19,7 +19,7 @@
           <button type="button" class="lang-btn" data-lang="ar">العربية</button>
         </div>
         <span class="status-badge" id="itemCounterBadge">0 Items</span>
-        <button type="button" class="btn-outline" id="toggleAdminBtn">Menu Editor</button>
+        <button type="button" class="btn-outline" id="toggleAdminBtn">🔒 Admin</button>
       </div>
     </div>
 
@@ -50,21 +50,43 @@
     </div>
   </header>
 
-  <!-- Frontend Menu Manager Panel -->
+  <!-- PIN-Protected Admin Panel -->
   <section class="admin-panel hidden" id="adminPanel">
     <div class="container">
       <div class="admin-card">
         <div class="admin-header">
           <div>
-            <h2 id="editorTitle">Frontend Menu Editor & Data Tools</h2>
-            <p class="subtitle" id="editorSubtitle">Test UI, search, filters, and 300+ items without a backend.</p>
+            <h2 id="editorTitle">Admin Panel & Menu Editor</h2>
+            <p class="subtitle" id="editorSubtitle">Configure WhatsApp number, manage menu items, and test 300+ items.</p>
           </div>
           <div class="admin-tools">
             <button type="button" class="btn-secondary" id="generate300Btn">Load 300 Demo Items</button>
             <button type="button" class="btn-secondary" id="exportJsonBtn">Export JSON</button>
             <button type="button" class="btn-secondary" id="importJsonBtn">Import JSON</button>
             <input type="file" id="importJsonInput" accept=".json" class="hidden" />
-            <button type="button" class="btn-danger-outline" id="resetMenuBtn">Reset</button>
+            <button type="button" class="btn-danger-outline" id="lockAdminBtn">Lock Admin</button>
+          </div>
+        </div>
+
+        <!-- Store & WhatsApp Settings Box -->
+        <div class="settings-box">
+          <h3 id="settingsHeading">Store & WhatsApp Settings</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="cfgStoreNameEn" id="lblCfgNameEn">Store Name (EN)</label>
+              <input type="text" id="cfgStoreNameEn" />
+            </div>
+            <div class="form-group">
+              <label for="cfgStoreNameAr" id="lblCfgNameAr">Store Name (AR)</label>
+              <input type="text" id="cfgStoreNameAr" />
+            </div>
+            <div class="form-group">
+              <label for="cfgWhatsappNumber" id="lblCfgWhatsapp">WhatsApp Number (with country code)</label>
+              <input type="tel" id="cfgWhatsappNumber" placeholder="9689XXXXXXX" />
+            </div>
+            <div class="form-group settings-save-wrap">
+              <button type="button" class="btn-primary" id="saveSettingsBtn">Save Settings</button>
+            </div>
           </div>
         </div>
 
@@ -144,10 +166,10 @@
       <span id="cartItemCount">0 Items</span>
       <strong id="cartTotalPreview">0.000 OMR</strong>
     </div>
-    <button type="button" class="btn-primary" id="openCartBtn">View Order</button>
+    <button type="button" class="btn-primary" id="openCartBtn">Order Now</button>
   </div>
 
-  <!-- Customization Modal -->
+  <!-- Customization Modal (Only when item has add-ons or customer clicks Customize) -->
   <div class="modal-overlay hidden" id="customModal">
     <div class="modal-box">
       <div class="modal-header">
@@ -178,11 +200,11 @@
     </div>
   </div>
 
-  <!-- Checkout Modal -->
+  <!-- Quick Checkout Modal -->
   <div class="modal-overlay hidden" id="checkoutModal">
     <div class="modal-box checkout-box">
       <div class="modal-header">
-        <h3 id="checkoutTitle">Your Order Summary</h3>
+        <h3 id="checkoutTitle">Complete Your Order</h3>
         <button type="button" class="close-btn" id="closeCheckoutModal">&times;</button>
       </div>
 
@@ -194,7 +216,7 @@
           <div class="radio-group">
             <label class="radio-card">
               <input type="radio" name="orderType" value="Delivery" checked />
-              <span id="lblDeliveryOption">Delivery (+0.500 OMR)</span>
+              <span id="lblDeliveryOption">Delivery (Free)</span>
             </label>
             <label class="radio-card">
               <input type="radio" name="orderType" value="Pickup" />
@@ -205,17 +227,21 @@
 
         <div class="form-group">
           <label for="customerName" id="lblCustomerName">Your Name *</label>
-          <input type="text" id="customerName" placeholder="Enter your full name" required />
+          <input type="text" id="customerName" placeholder="Enter your name" required />
         </div>
 
         <div class="form-group" id="addressGroup">
-          <label for="customerAddress" id="lblCustomerAddress">Delivery Address / Location *</label>
-          <input type="text" id="customerAddress" placeholder="Area, street, or landmark" />
+          <div class="location-label-row">
+            <label for="customerAddress" id="lblCustomerAddress">Delivery Location / Address *</label>
+            <button type="button" class="btn-location" id="shareLocationBtn">📍 Share Live Location</button>
+          </div>
+          <input type="text" id="customerAddress" placeholder="Tap 'Share Live Location' or type address" />
+          <div class="location-status hidden" id="locationStatus"></div>
         </div>
 
         <div class="form-group">
-          <label for="orderNote" id="lblOrderNote">Additional Notes</label>
-          <input type="text" id="orderNote" placeholder="Preferred delivery time or notes" />
+          <label for="orderNote" id="lblOrderNote">Notes (Optional)</label>
+          <input type="text" id="orderNote" placeholder="Any extra note..." />
         </div>
       </div>
 
@@ -225,8 +251,8 @@
           <span id="subtotalAmount">0.000 OMR</span>
         </div>
         <div class="bill-row">
-          <span id="lblDeliveryFee">Delivery Fee</span>
-          <span id="deliveryAmount">0.500 OMR</span>
+          <span id="lblDeliveryFee">Delivery</span>
+          <span id="deliveryAmount">Free</span>
         </div>
         <div class="bill-row total">
           <span id="lblGrandTotal">Total Bill</span>
