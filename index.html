@@ -1,108 +1,130 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quick Order Menu | WhatsApp Checkout</title>
+  <title>Quick Order Menu | EN / AR Catalog</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <header class="app-header">
     <div class="header-content">
       <div>
         <h1 id="storeName">Velvet Crumb & Treats</h1>
-        <p class="subtitle">পছন্দের আইটেম বেছে নিন এবং সরাসরি WhatsApp-এ অর্ডার করুন</p>
+        <p class="subtitle" id="storeSubtitle">Select your items and send your order directly on WhatsApp</p>
       </div>
       <div class="header-actions">
-        <span class="status-badge" id="itemCounterBadge">Loading...</span>
-        <button class="btn-outline" id="toggleAdminBtn">🔒 এডমিন</button>
+        <div class="lang-switch" role="group" aria-label="Language Switcher">
+          <button type="button" class="lang-btn active" data-lang="en">EN</button>
+          <button type="button" class="lang-btn" data-lang="ar">العربية</button>
+        </div>
+        <span class="status-badge" id="itemCounterBadge">0 Items</span>
+        <button type="button" class="btn-outline" id="toggleAdminBtn">Menu Editor</button>
       </div>
     </div>
 
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="৩০০+ আইটেম থেকে নাম দিয়ে খুঁজুন..." />
+    <div class="toolbar-row">
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search items..." />
+      </div>
+      <select id="sortSelect" class="sort-select" aria-label="Sort items">
+        <option value="default">Default Order</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="name-asc">Name: A - Z</option>
+      </select>
     </div>
 
-    <nav class="category-tabs" id="categoryTabs">
-      <button class="tab active" data-category="all">সব আইটেম</button>
-      <button class="tab" data-category="dessert">ডেজার্ট ও চকলেট</button>
-      <button class="tab" data-category="drinks">ড্রিংকস ও কফি</button>
-      <button class="tab" data-category="combo">কম্বো প্যাক</button>
-      <button class="tab" data-category="snacks">স্ন্যাকস ও অন্যান্য</button>
-    </nav>
+    <div class="sub-toolbar">
+      <nav class="category-tabs" id="categoryTabs">
+        <button type="button" class="tab active" data-category="all">All Items</button>
+        <button type="button" class="tab" data-category="dessert">Desserts & Chocolate</button>
+        <button type="button" class="tab" data-category="drinks">Drinks & Coffee</button>
+        <button type="button" class="tab" data-category="combo">Combo Packs</button>
+        <button type="button" class="tab" data-category="snacks">Snacks</button>
+      </nav>
+      <label class="toggle-chip">
+        <input type="checkbox" id="hideSoldOutCheckbox" />
+        <span id="hideSoldOutLabel">Hide Stock Out</span>
+      </label>
+    </div>
   </header>
 
-  <!-- Admin Menu Manager Panel -->
+  <!-- Frontend Menu Manager Panel -->
   <section class="admin-panel hidden" id="adminPanel">
     <div class="container">
       <div class="admin-card">
         <div class="admin-header">
           <div>
-            <h2>ক্লাউড মেনু ম্যানেজার (লাইভ আপডেট)</h2>
-            <p class="subtitle">মোবাইল থেকে ছবি তুললেই সরাসরি সার্ভারে সেভ হবে এবং কাস্টমাররা দেখতে পাবে।</p>
+            <h2 id="editorTitle">Frontend Menu Editor & Data Tools</h2>
+            <p class="subtitle" id="editorSubtitle">Test UI, search, filters, and 300+ items without a backend.</p>
           </div>
-          <button class="btn-danger-outline" id="logoutAdminBtn">লক করুন</button>
+          <div class="admin-tools">
+            <button type="button" class="btn-secondary" id="generate300Btn">Load 300 Demo Items</button>
+            <button type="button" class="btn-secondary" id="exportJsonBtn">Export JSON</button>
+            <button type="button" class="btn-secondary" id="importJsonBtn">Import JSON</button>
+            <input type="file" id="importJsonInput" accept=".json" class="hidden" />
+            <button type="button" class="btn-danger-outline" id="resetMenuBtn">Reset</button>
+          </div>
         </div>
 
         <form id="addItemForm" class="admin-form">
           <input type="hidden" id="editItemId" />
-          <input type="hidden" id="existingImageUrl" />
+          <input type="hidden" id="existingImageData" />
           <div class="form-grid">
             <div class="form-group">
-              <label for="itemNameInput">আইটেমের নাম *</label>
-              <input type="text" id="itemNameInput" placeholder="যেমন: Double Chocolate Crispy Drizzle" required />
+              <label for="itemNameInput" id="lblItemName">Item Name *</label>
+              <input type="text" id="itemNameInput" placeholder="Double Chocolate Crispy Drizzle" required />
             </div>
             <div class="form-group">
-              <label for="itemPriceInput">দাম *</label>
+              <label for="itemPriceInput" id="lblItemPrice">Price *</label>
               <input type="number" step="0.001" min="0" id="itemPriceInput" placeholder="1.300" required />
             </div>
             <div class="form-group">
-              <label for="itemCategoryInput">ক্যাটাগরি</label>
+              <label for="itemCategoryInput" id="lblItemCategory">Category</label>
               <select id="itemCategoryInput">
-                <option value="dessert">ডেজার্ট ও চকলেট</option>
-                <option value="drinks">ড্রিংকস ও কফি</option>
-                <option value="combo">কম্বো প্যাক</option>
-                <option value="snacks">স্ন্যাকস ও অন্যান্য</option>
+                <option value="dessert">Desserts & Chocolate</option>
+                <option value="drinks">Drinks & Coffee</option>
+                <option value="combo">Combo Packs</option>
+                <option value="snacks">Snacks</option>
               </select>
             </div>
             <div class="form-group">
-              <label for="itemTagInput">ব্যাজ / ট্যাগ</label>
-              <input type="text" id="itemTagInput" placeholder="Bestseller / New" />
+              <label for="itemTagInput" id="lblItemTag">Badge / Tag</label>
+              <input type="text" id="itemTagInput" placeholder="Bestseller" />
             </div>
           </div>
 
           <div class="form-group">
-            <label for="itemImageInput">আইটেমের ছবি (ক্যামেরা বা গ্যালারি)</label>
+            <label for="itemImageInput" id="lblItemImage">Photo (Gallery or Camera — UI Preview)</label>
             <div class="image-upload-row">
               <input type="file" id="itemImageInput" accept="image/*" />
-              <button type="button" class="btn-secondary hidden" id="removeImageBtn">ছবি সরান</button>
+              <button type="button" class="btn-secondary hidden" id="removeImageBtn">Remove Photo</button>
             </div>
             <div class="image-preview-box hidden" id="imagePreviewBox">
               <img id="imagePreviewImg" alt="Preview" />
-              <span id="imageSizeInfo">ছবি প্রস্তুত</span>
+              <span id="imageSizeInfo"></span>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="itemDescInput">সংক্ষিপ্ত বিবরণ</label>
-            <input type="text" id="itemDescInput" placeholder="ফ্লেভার, সাইজ বা উপাদানের তথ্য..." />
+            <label for="itemDescInput" id="lblItemDesc">Short Description</label>
+            <input type="text" id="itemDescInput" placeholder="Short description of the item..." />
           </div>
 
           <div class="form-group">
-            <label for="itemAddonsInput">অ্যাড-অন / টপিংস (ফরম্যাট: নাম:দাম, কমা দিয়ে আলাদা করুন)</label>
+            <label for="itemAddonsInput" id="lblItemAddons">Add-ons (Format: Name:Price, comma separated)</label>
             <input type="text" id="itemAddonsInput" placeholder="Extra Sauce:0.250, Hazelnut:0.300" />
           </div>
 
           <div class="admin-form-actions">
-            <button type="submit" class="btn-primary" id="saveItemBtn">+ সার্ভারে সেভ করুন</button>
-            <button type="button" class="btn-secondary hidden" id="cancelEditBtn">বাতিল</button>
+            <button type="submit" class="btn-primary" id="saveItemBtn">+ Add Item</button>
+            <button type="button" class="btn-secondary hidden" id="cancelEditBtn">Cancel</button>
           </div>
         </form>
 
-        <div class="form-group" style="margin-top: 10px;">
-          <input type="text" id="adminSearchInput" placeholder="এডমিন লিস্টে আইটেম খুঁজুন (এডিট বা ডিলিট করতে)..." />
+        <div class="form-group">
+          <input type="text" id="adminSearchInput" placeholder="Search items in editor list..." />
         </div>
         <div class="admin-items-list" id="adminItemsList"></div>
       </div>
@@ -110,42 +132,39 @@
   </section>
 
   <main class="container">
-    <div id="loadingSpinner" class="loading-box">মেনু লোড হচ্ছে...</div>
     <section class="menu-grid" id="menuGrid"></section>
-    
-    <!-- Load More Button for 300+ Items Performance -->
     <div class="load-more-wrap hidden" id="loadMoreWrap">
-      <button class="btn-secondary" id="loadMoreBtn">আরও আইটেম দেখুন</button>
+      <button type="button" class="btn-secondary" id="loadMoreBtn">Load More Items</button>
     </div>
   </main>
 
   <!-- Floating Cart Bar -->
   <div class="floating-cart-bar hidden" id="floatingCartBar">
     <div class="cart-summary-info">
-      <span id="cartItemCount">0 টি আইটেম</span>
+      <span id="cartItemCount">0 Items</span>
       <strong id="cartTotalPreview">0.000 OMR</strong>
     </div>
-    <button class="btn-primary" id="openCartBtn">অর্ডার দেখুন</button>
+    <button type="button" class="btn-primary" id="openCartBtn">View Order</button>
   </div>
 
   <!-- Customization Modal -->
   <div class="modal-overlay hidden" id="customModal">
     <div class="modal-box">
       <div class="modal-header">
-        <h3 id="modalItemTitle">আইটেম কাস্টমাইজ করুন</h3>
-        <button class="close-btn" id="closeCustomModal">&times;</button>
+        <h3 id="modalItemTitle">Customize Item</h3>
+        <button type="button" class="close-btn" id="closeCustomModal">&times;</button>
       </div>
       <img id="modalItemImg" class="modal-item-img hidden" alt="Item photo" />
       <p class="modal-desc" id="modalItemDesc"></p>
 
       <div class="addons-section">
-        <h4>এক্সট্রা টপিংস / সস যোগ করুন (ঐচ্ছিক)</h4>
+        <h4 id="addonsHeading">Extra Toppings / Sauces (Optional)</h4>
         <div id="addonsList" class="addons-list"></div>
       </div>
 
       <div class="note-section">
-        <label for="itemNote">বিশেষ নির্দেশনা (যদি থাকে)</label>
-        <input type="text" id="itemNote" placeholder="যেমন: কম মিষ্টি, এক্সট্রা সস আলাদা..." />
+        <label for="itemNote" id="lblItemNote">Special Instructions</label>
+        <input type="text" id="itemNote" placeholder="e.g. Less sweet, extra sauce on the side..." />
       </div>
 
       <div class="modal-footer">
@@ -154,7 +173,7 @@
           <span id="modalQtyValue">1</span>
           <button type="button" id="modalQtyPlus">+</button>
         </div>
-        <button class="btn-primary" id="confirmAddBtn">কার্টে যোগ করুন</button>
+        <button type="button" class="btn-primary" id="confirmAddBtn">Add to Order</button>
       </div>
     </div>
   </div>
@@ -163,60 +182,60 @@
   <div class="modal-overlay hidden" id="checkoutModal">
     <div class="modal-box checkout-box">
       <div class="modal-header">
-        <h3>আপনার অর্ডার সামারি</h3>
-        <button class="close-btn" id="closeCheckoutModal">&times;</button>
+        <h3 id="checkoutTitle">Your Order Summary</h3>
+        <button type="button" class="close-btn" id="closeCheckoutModal">&times;</button>
       </div>
 
       <div id="cartItemsContainer" class="cart-items-list"></div>
 
       <div class="checkout-form">
         <div class="form-group">
-          <label>অর্ডার টাইপ</label>
+          <label id="lblOrderType">Order Type</label>
           <div class="radio-group">
             <label class="radio-card">
               <input type="radio" name="orderType" value="Delivery" checked />
-              <span>হোম ডেলিভারি (+0.500 OMR)</span>
+              <span id="lblDeliveryOption">Delivery (+0.500 OMR)</span>
             </label>
             <label class="radio-card">
               <input type="radio" name="orderType" value="Pickup" />
-              <span>সেলফ পিকআপ (ফ্রি)</span>
+              <span id="lblPickupOption">Pickup (Free)</span>
             </label>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="customerName">আপনার নাম *</label>
-          <input type="text" id="customerName" placeholder="পূর্ণ নাম লিখুন" required />
+          <label for="customerName" id="lblCustomerName">Your Name *</label>
+          <input type="text" id="customerName" placeholder="Enter your full name" required />
         </div>
 
         <div class="form-group" id="addressGroup">
-          <label for="customerAddress">ডেলিভারি ঠিকানা / লোকেশন *</label>
-          <input type="text" id="customerAddress" placeholder="এলাকা, রাস্তার নাম বা ল্যান্ডমার্ক" />
+          <label for="customerAddress" id="lblCustomerAddress">Delivery Address / Location *</label>
+          <input type="text" id="customerAddress" placeholder="Area, street, or landmark" />
         </div>
 
         <div class="form-group">
-          <label for="orderNote">অতিরিক্ত নোট (ঐচ্ছিক)</label>
-          <input type="text" id="orderNote" placeholder="ডেলিভারি সময় বা অন্য কোনো তথ্য" />
+          <label for="orderNote" id="lblOrderNote">Additional Notes</label>
+          <input type="text" id="orderNote" placeholder="Preferred delivery time or notes" />
         </div>
       </div>
 
       <div class="bill-breakdown">
         <div class="bill-row">
-          <span>সাবটোটাল</span>
+          <span id="lblSubtotal">Subtotal</span>
           <span id="subtotalAmount">0.000 OMR</span>
         </div>
         <div class="bill-row">
-          <span>ডেলিভারি চার্জ</span>
+          <span id="lblDeliveryFee">Delivery Fee</span>
           <span id="deliveryAmount">0.500 OMR</span>
         </div>
         <div class="bill-row total">
-          <span>সর্বমোট বিল</span>
+          <span id="lblGrandTotal">Total Bill</span>
           <span id="grandTotalAmount">0.000 OMR</span>
         </div>
       </div>
 
-      <button class="btn-whatsapp" id="sendWhatsappBtn">
-        WhatsApp-এ অর্ডার পাঠান
+      <button type="button" class="btn-whatsapp" id="sendWhatsappBtn">
+        Send Order on WhatsApp
       </button>
     </div>
   </div>
