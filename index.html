@@ -36,13 +36,7 @@
     </div>
 
     <div class="sub-toolbar">
-      <nav class="category-tabs" id="categoryTabs">
-        <button type="button" class="tab active" data-category="all">All Items</button>
-        <button type="button" class="tab" data-category="dessert">Desserts & Chocolate</button>
-        <button type="button" class="tab" data-category="drinks">Drinks & Coffee</button>
-        <button type="button" class="tab" data-category="combo">Combo Packs</button>
-        <button type="button" class="tab" data-category="snacks">Snacks</button>
-      </nav>
+      <nav class="category-tabs" id="categoryTabs"></nav>
       <label class="toggle-chip">
         <input type="checkbox" id="hideSoldOutCheckbox" />
         <span id="hideSoldOutLabel">Hide Stock Out</span>
@@ -57,7 +51,7 @@
         <div class="admin-header">
           <div>
             <h2 id="editorTitle">Admin Panel & Menu Editor</h2>
-            <p class="subtitle" id="editorSubtitle">Configure WhatsApp number, manage menu items, and test 300+ items.</p>
+            <p class="subtitle" id="editorSubtitle">Manage WhatsApp number, categories, single/dual prices, and menu items.</p>
           </div>
           <div class="admin-tools">
             <button type="button" class="btn-secondary" id="generate300Btn">Load 300 Demo Items</button>
@@ -90,26 +84,36 @@
           </div>
         </div>
 
+        <!-- Category Manager Box -->
+        <div class="settings-box">
+          <h3 id="catManagerHeading">Categories (Default + Custom)</h3>
+          <form id="addCategoryForm" class="cat-add-form">
+            <input type="text" id="newCatEnInput" placeholder="New Category (EN) e.g. Shawarma" required />
+            <input type="text" id="newCatArInput" placeholder="تصنيف جديد (AR) مثال: شاورما" />
+            <button type="submit" class="btn-secondary" id="addCatBtn">+ Add Category</button>
+          </form>
+          <div class="cat-chips-wrap" id="adminCategoryChips"></div>
+        </div>
+
+        <!-- Add / Edit Item Form -->
         <form id="addItemForm" class="admin-form">
           <input type="hidden" id="editItemId" />
-          <input type="hidden" id="existingImageData" />
           <div class="form-grid">
             <div class="form-group">
               <label for="itemNameInput" id="lblItemName">Item Name *</label>
-              <input type="text" id="itemNameInput" placeholder="Double Chocolate Crispy Drizzle" required />
+              <input type="text" id="itemNameInput" placeholder="Classic Beef Burger" required />
             </div>
             <div class="form-group">
               <label for="itemPriceInput" id="lblItemPrice">Price *</label>
-              <input type="number" step="0.001" min="0" id="itemPriceInput" placeholder="1.300" required />
+              <input type="number" step="0.001" min="0" id="itemPriceInput" placeholder="1.500" required />
+              <div class="sub-field-box">
+                <label for="itemVariantsInput" id="lblItemVariants">Variants / Sizes (Optional)</label>
+                <input type="text" id="itemVariantsInput" placeholder="Small:1.500, Large:2.500" />
+              </div>
             </div>
             <div class="form-group">
               <label for="itemCategoryInput" id="lblItemCategory">Category</label>
-              <select id="itemCategoryInput">
-                <option value="dessert">Desserts & Chocolate</option>
-                <option value="drinks">Drinks & Coffee</option>
-                <option value="combo">Combo Packs</option>
-                <option value="snacks">Snacks</option>
-              </select>
+              <select id="itemCategoryInput"></select>
             </div>
             <div class="form-group">
               <label for="itemTagInput" id="lblItemTag">Badge / Tag</label>
@@ -136,7 +140,7 @@
 
           <div class="form-group">
             <label for="itemAddonsInput" id="lblItemAddons">Add-ons (Format: Name:Price, comma separated)</label>
-            <input type="text" id="itemAddonsInput" placeholder="Extra Sauce:0.250, Hazelnut:0.300" />
+            <input type="text" id="itemAddonsInput" placeholder="Extra Cheese:0.200, Spicy Sauce:0.150" />
           </div>
 
           <div class="admin-form-actions">
@@ -169,7 +173,7 @@
     <button type="button" class="btn-primary" id="openCartBtn">Order Now</button>
   </div>
 
-  <!-- Customization Modal (Only when item has add-ons or customer clicks Customize) -->
+  <!-- Customization Modal -->
   <div class="modal-overlay hidden" id="customModal">
     <div class="modal-box">
       <div class="modal-header">
@@ -179,6 +183,11 @@
       <img id="modalItemImg" class="modal-item-img hidden" alt="Item photo" />
       <p class="modal-desc" id="modalItemDesc"></p>
 
+      <div class="addons-section hidden" id="modalVariantsSection">
+        <h4 id="variantsHeading">Select Price / Size</h4>
+        <div id="modalVariantsList" class="variant-modal-list"></div>
+      </div>
+
       <div class="addons-section">
         <h4 id="addonsHeading">Extra Toppings / Sauces (Optional)</h4>
         <div id="addonsList" class="addons-list"></div>
@@ -186,7 +195,7 @@
 
       <div class="note-section">
         <label for="itemNote" id="lblItemNote">Special Instructions</label>
-        <input type="text" id="itemNote" placeholder="e.g. Less sweet, extra sauce on the side..." />
+        <input type="text" id="itemNote" placeholder="e.g. No onions, extra garlic sauce..." />
       </div>
 
       <div class="modal-footer">
