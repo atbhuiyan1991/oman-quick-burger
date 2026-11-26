@@ -1,13 +1,17 @@
-// ===== ১. ফ্রন্টএন্ড কনফিগারেশন =====
-const STORE_CONFIG = {
+// ===== ১. কনফিগারেশন =====
+const DEFAULT_SETTINGS = {
   name: "Velvet Crumb & Treats",
   nameAr: "فيلفيت كرامب وتريتس",
-  whatsappNumber: "96890000000",
+  whatsappNumber: "96890000000", // এডমিন প্যানেল থেকেও পরিবর্তন করা যাবে
   currency: "OMR",
   decimals: 3,
-  deliveryFee: 0.500,
+  adminPin: "1234" // এডমিন পিন কোড
+};
+
+const APP_META = {
   itemsPerPage: 24,
-  storageKey: "frontend_catalog_en_ar_v1",
+  catalogKey: "frontend_catalog_v2",
+  settingsKey: "frontend_store_settings_v1",
   langKey: "frontend_catalog_lang_v1",
   maxImageWidth: 500,
   imageQuality: 0.68
@@ -16,9 +20,19 @@ const STORE_CONFIG = {
 // ===== ২. ইংরেজি ও আরবি অনুবাদ (EN / AR) =====
 const TRANSLATIONS = {
   en: {
-    subtitle: "Select your items and send your order directly on WhatsApp",
+    subtitle: "Tap + to add items and order directly on WhatsApp",
     itemsCount: n => `${n} Items`,
-    menuEditor: "Menu Editor",
+    adminBtn: unlocked => (unlocked ? "🔓 Admin" : "🔒 Admin"),
+    lockAdmin: "Lock Admin",
+    pinPrompt: "Enter Admin PIN:",
+    wrongPin: "Incorrect PIN!",
+    settingsHeading: "Store & WhatsApp Settings",
+    lblCfgNameEn: "Store Name (EN)",
+    lblCfgNameAr: "Store Name (AR)",
+    lblCfgWhatsapp: "WhatsApp Number (with country code)",
+    saveSettings: "Save Settings",
+    settingsSaved: "Settings saved!",
+    invalidWhatsapp: "Please enter a valid WhatsApp number (digits only).",
     searchPlaceholder: "Search items...",
     sortDefault: "Default Order",
     sortPriceAsc: "Price: Low to High",
@@ -30,12 +44,11 @@ const TRANSLATIONS = {
     catCombo: "Combo Packs",
     catSnacks: "Snacks",
     hideSoldOut: "Hide Stock Out",
-    editorTitle: "Frontend Menu Editor & Data Tools",
-    editorSubtitle: "Test UI, search, filters, and 300+ items without a backend.",
+    editorTitle: "Admin Panel & Menu Editor",
+    editorSubtitle: "Configure WhatsApp number, manage menu items, and test 300+ items.",
     load300: "Load 300 Demo Items",
     exportJson: "Export JSON",
     importJson: "Import JSON",
-    reset: "Reset",
     lblItemName: "Item Name *",
     lblItemPrice: "Price *",
     lblItemCategory: "Category",
@@ -50,10 +63,11 @@ const TRANSLATIONS = {
     adminSearchPlaceholder: "Search items in editor list...",
     stockOutTag: "Stock Out",
     addBtn: "+ Add",
+    customizeBtn: "Options",
     soldOutBtn: "Sold Out",
     loadMore: rem => `Load More (${rem} remaining)`,
     noItemsFound: "No items found.",
-    viewOrder: "View Order",
+    viewOrder: "Order Now",
     cartCount: n => `${n} Items Selected`,
     customizeTitle: "Customize Item",
     addonsHeading: "Extra Toppings / Sauces (Optional)",
@@ -61,23 +75,29 @@ const TRANSLATIONS = {
     lblItemNote: "Special Instructions",
     itemNotePlaceholder: "e.g. Less sweet, extra sauce on the side...",
     addToOrder: "Add to Order",
-    checkoutTitle: "Your Order Summary",
+    checkoutTitle: "Complete Your Order",
     emptyCart: "Your cart is empty.",
     lblOrderType: "Order Type",
-    deliveryOption: fee => `Delivery (+${fee})`,
+    deliveryOption: "Delivery (Free)",
     pickupOption: "Pickup (Free)",
     lblCustomerName: "Your Name *",
-    customerNamePlaceholder: "Enter your full name",
-    lblCustomerAddress: "Delivery Address / Location *",
-    customerAddressPlaceholder: "Area, street, or landmark",
-    lblOrderNote: "Additional Notes",
-    orderNotePlaceholder: "Preferred delivery time or notes",
+    customerNamePlaceholder: "Enter your name",
+    lblCustomerAddress: "Delivery Location / Address *",
+    customerAddressPlaceholder: "Tap 'Share Live Location' or type address",
+    shareLocation: "📍 Share Live Location",
+    gettingLocation: "Fetching live GPS location...",
+    locationCaptured: "Live GPS location attached!",
+    locationDenied: "Location permission denied. Type address manually.",
+    locationUnsupported: "GPS not supported on this browser.",
+    lblOrderNote: "Notes (Optional)",
+    orderNotePlaceholder: "Any extra note...",
     lblSubtotal: "Subtotal",
-    lblDeliveryFee: "Delivery Fee",
+    lblDeliveryFee: "Delivery",
+    freeText: "Free",
     lblGrandTotal: "Total Bill",
     sendWhatsapp: "Send Order on WhatsApp",
     alertNameRequired: "Please enter your name.",
-    alertAddressRequired: "Please enter your delivery address or location.",
+    alertAddressRequired: "Please share live location or enter delivery address.",
     alertInvalidJson: "Please select a valid JSON array file.",
     alertReadJsonError: "Unable to read the JSON file.",
     previewSize: kb => `Preview size: ~${kb} KB`,
@@ -86,19 +106,29 @@ const TRANSLATIONS = {
     markSoldOut: "Stock Out",
     markAvailable: "Available",
     waHeader: store => `*New Order - ${store}*`,
-    waCustomer: v => `*Customer:* ${v}`,
+    waCustomer: v => `*Name:* ${v}`,
     waType: v => `*Order Type:* ${v}`,
-    waAddress: v => `*Address:* ${v}`,
+    waAddress: v => `*Location / Address:* ${v}`,
     waNote: v => `*Note:* ${v}`,
     waItems: "*Items:*",
     waSubtotal: v => `Subtotal: ${v}`,
-    waDelivery: v => `Delivery Fee: ${v}`,
+    waDelivery: "Delivery: Free",
     waTotal: v => `*Total Bill: ${v}*`
   },
   ar: {
-    subtitle: "اختر أصنافك وأرسل طلبك مباشرة عبر واتساب",
+    subtitle: "اضغط + لإضافة الأصناف وأرسل طلبك مباشرة عبر واتساب",
     itemsCount: n => `${n} أصناف`,
-    menuEditor: "محرر القائمة",
+    adminBtn: unlocked => (unlocked ? "🔓 الإدارة" : "🔒 الإدارة"),
+    lockAdmin: "قفل الإدارة",
+    pinPrompt: "أدخل رمز الدخول الخاص بالإدارة:",
+    wrongPin: "رمز الدخول غير صحيح!",
+    settingsHeading: "إعدادات المتجر وواتساب",
+    lblCfgNameEn: "اسم المتجر (إنجليزي)",
+    lblCfgNameAr: "اسم المتجر (عربي)",
+    lblCfgWhatsapp: "رقم واتساب (مع رمز الدولة)",
+    saveSettings: "حفظ الإعدادات",
+    settingsSaved: "تم حفظ الإعدادات!",
+    invalidWhatsapp: "يرجى إدخال رقم واتساب صحيح (أرقام فقط).",
     searchPlaceholder: "ابحث عن صنف...",
     sortDefault: "الترتيب الافتراضي",
     sortPriceAsc: "السعر: من الأقل إلى الأعلى",
@@ -110,12 +140,11 @@ const TRANSLATIONS = {
     catCombo: "باقات كومبو",
     catSnacks: "سناكس",
     hideSoldOut: "إخفاء غير المتوفر",
-    editorTitle: "محرر القائمة وأدوات البيانات (الواجهة الأمامية)",
-    editorSubtitle: "اختبر الواجهة والبحث والفلاتر وأكثر من 300 صنف بدون خادم خلفي.",
+    editorTitle: "لوحة الإدارة ومحرر القائمة",
+    editorSubtitle: "اضبط رقم واتساب، أدر الأصناف، واختبر أكثر من 300 صنف.",
     load300: "تحميل 300 صنف تجريبي",
     exportJson: "تصدير JSON",
     importJson: "استيراد JSON",
-    reset: "إعادة ضبط",
     lblItemName: "اسم الصنف *",
     lblItemPrice: "السعر *",
     lblItemCategory: "التصنيف",
@@ -129,11 +158,12 @@ const TRANSLATIONS = {
     cancelBtn: "إلغاء",
     adminSearchPlaceholder: "ابحث في قائمة المحرر...",
     stockOutTag: "نفذت الكمية",
-    addBtn: "+ إضافة",
+    addBtn: "+ أضف",
+    customizeBtn: "خيارات",
     soldOutBtn: "غير متوفر",
     loadMore: rem => `عرض المزيد (${rem} متبقي)`,
     noItemsFound: "لا توجد أصناف مطابقة.",
-    viewOrder: "عرض الطلب",
+    viewOrder: "اطلب الآن",
     cartCount: n => `${n} أصناف مختارة`,
     customizeTitle: "تخصيص الصنف",
     addonsHeading: "إضافات / صوص إضافي (اختياري)",
@@ -141,38 +171,44 @@ const TRANSLATIONS = {
     lblItemNote: "ملاحظات خاصة",
     itemNotePlaceholder: "مثال: سكر خفيف، الصوص جانبي...",
     addToOrder: "أضف إلى الطلب",
-    checkoutTitle: "ملخص طلبك",
+    checkoutTitle: "إتمام طلبك",
     emptyCart: "السلة فارغة.",
     lblOrderType: "نوع الطلب",
-    deliveryOption: fee => `توصيل (+${fee})`,
+    deliveryOption: "توصيل (مجاني)",
     pickupOption: "استلام من الفرع (مجاني)",
-    lblCustomerName: "الاسم الكامل *",
-    customerNamePlaceholder: "اكتب اسمك الكامل",
-    lblCustomerAddress: "عنوان التوصيل / الموقع *",
-    customerAddressPlaceholder: "المنطقة، الشارع، أو أقرب معلم",
-    lblOrderNote: "ملاحظات إضافية",
-    orderNotePlaceholder: "وقت التوصيل المفضل أو أي ملاحظات",
+    lblCustomerName: "الاسم *",
+    customerNamePlaceholder: "اكتب اسمك",
+    lblCustomerAddress: "الموقع المباشر / العنوان *",
+    customerAddressPlaceholder: "اضغط 'إرسال الموقع المباشر' أو اكتب العنوان",
+    shareLocation: "📍 إرسال الموقع المباشر",
+    gettingLocation: "جاري تحديد الموقع عبر GPS...",
+    locationCaptured: "تم إرفاق الموقع المباشر بنجاح!",
+    locationDenied: "تم رفض إذن الموقع. اكتب العنوان يدوياً.",
+    locationUnsupported: "المتصفح لا يدعم تحديد الموقع GPS.",
+    lblOrderNote: "ملاحظات (اختياري)",
+    orderNotePlaceholder: "أي ملاحظة إضافية...",
     lblSubtotal: "المجموع الفرعي",
-    lblDeliveryFee: "رسوم التوصيل",
+    lblDeliveryFee: "التوصيل",
+    freeText: "مجاني",
     lblGrandTotal: "الإجمالي النهائي",
     sendWhatsapp: "إرسال الطلب عبر واتساب",
     alertNameRequired: "يرجى إدخال الاسم.",
-    alertAddressRequired: "يرجى إدخال عنوان التوصيل أو الموقع.",
-    alertInvalidJson: "يرجى اختيار ملف JSON صحيح يحتوي على قائمة أصناف.",
-    alertReadJsonError: "تعذر قراءة ملف JSON.",
+    alertAddressRequired: "يرجى مشاركة الموقع المباشر أو إدخال العنوان.",
+    alertInvalidJson: "يرجى اختيار ملف JSON صحيح.",
+    alertReadJsonError: "تعذر قراءة الملف.",
     previewSize: kb => `حجم المعاينة: ~${kb} KB`,
     editBtn: "تعديل",
     deleteBtn: "حذف",
     markSoldOut: "نفذت الكمية",
     markAvailable: "متوفر",
     waHeader: store => `*طلب جديد - ${store}*`,
-    waCustomer: v => `*العميل:* ${v}`,
+    waCustomer: v => `*الاسم:* ${v}`,
     waType: v => `*نوع الطلب:* ${v}`,
-    waAddress: v => `*العنوان:* ${v}`,
+    waAddress: v => `*الموقع / العنوان:* ${v}`,
     waNote: v => `*ملاحظة:* ${v}`,
-    waItems: "*الأصناف المطلوبة:*",
+    waItems: "*الأصناف:*",
     waSubtotal: v => `المجموع الفرعي: ${v}`,
-    waDelivery: v => `رسوم التوصيل: ${v}`,
+    waDelivery: "التوصيل: مجاني",
     waTotal: v => `*الإجمالي النهائي: ${v}*`
   }
 };
@@ -188,8 +224,8 @@ const INITIAL_ITEMS = [
     price: 1.300,
     available: true,
     image: "",
-    desc: "Crispy wafer and dark-milk chocolate layers topped with rich white chocolate drizzle.",
-    descAr: "طبقات ويفر مقرمشة وشوكولاتة داكنة وحليب مع صوص شوكولاتة بيضاء غني.",
+    desc: "Crispy wafer and dark-milk chocolate layers with white chocolate drizzle.",
+    descAr: "طبقات ويفر مقرمشة وشوكولاتة داكنة وحليب مع صوص شوكولاتة بيضاء.",
     addons: [
       { id: "a1", name: "Extra White Chocolate Drizzle", price: 0.250 },
       { id: "a2", name: "Roasted Hazelnut Crunch", price: 0.300 }
@@ -207,7 +243,7 @@ const INITIAL_ITEMS = [
     image: "",
     desc: "Soft Belgian dark chocolate fudge cubes.",
     descAr: "مكعبات فادج شوكولاتة بلجيكية داكنة طرية.",
-    addons: [{ id: "a3", name: "Extra Milk Cream Sauce", price: 0.250 }]
+    addons: []
   },
   {
     id: 3,
@@ -219,20 +255,34 @@ const INITIAL_ITEMS = [
     price: 1.400,
     available: true,
     image: "",
-    desc: "Fresh espresso shot balanced with creamy sweetened milk.",
-    descAr: "إسبريسو طازج متوازن مع حليب محلى كريمي.",
-    addons: [{ id: "a4", name: "Extra Espresso Shot", price: 0.300 }]
+    desc: "Fresh espresso shot with creamy sweetened milk.",
+    descAr: "إسبريسو طازج مع حليب محلى كريمي.",
+    addons: []
   }
 ];
 
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(APP_META.settingsKey);
+    if (!raw) return { ...DEFAULT_SETTINGS };
+    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+function saveSettings(nextSettings) {
+  storeSettings = { ...storeSettings, ...nextSettings };
+  localStorage.setItem(APP_META.settingsKey, JSON.stringify(storeSettings));
+}
+
 function loadSavedLang() {
-  const saved = localStorage.getItem(STORE_CONFIG.langKey);
-  return saved === "ar" ? "ar" : "en";
+  return localStorage.getItem(APP_META.langKey) === "ar" ? "ar" : "en";
 }
 
 function loadInitialItems() {
   try {
-    const raw = localStorage.getItem(STORE_CONFIG.storageKey);
+    const raw = localStorage.getItem(APP_META.catalogKey);
     if (!raw) return [...INITIAL_ITEMS];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) && parsed.length ? parsed : [...INITIAL_ITEMS];
@@ -243,17 +293,19 @@ function loadInitialItems() {
 
 function saveLocalState() {
   try {
-    localStorage.setItem(STORE_CONFIG.storageKey, JSON.stringify(allItems));
+    localStorage.setItem(APP_META.catalogKey, JSON.stringify(allItems));
   } catch {
     // Keep in-memory state when 300+ items exceed localStorage quota
   }
 }
 
-// ===== ৩. ফ্রন্টএন্ড স্টেট =====
+// ===== ৩. স্টেট ম্যানেজমেন্ট =====
+let storeSettings = loadSettings();
 let currentLang = loadSavedLang();
+let isAdminAuthenticated = false;
 let allItems = loadInitialItems();
 let filteredItems = [];
-let visibleLimit = STORE_CONFIG.itemsPerPage;
+let visibleLimit = APP_META.itemsPerPage;
 let cart = [];
 let activeCategory = "all";
 let searchQuery = "";
@@ -277,9 +329,15 @@ const floatingCartBar = document.getElementById("floatingCartBar");
 const cartItemCount = document.getElementById("cartItemCount");
 const cartTotalPreview = document.getElementById("cartTotalPreview");
 
-// Editor DOM Elements
+// Admin & Settings DOM
 const toggleAdminBtn = document.getElementById("toggleAdminBtn");
+const lockAdminBtn = document.getElementById("lockAdminBtn");
 const adminPanel = document.getElementById("adminPanel");
+const cfgStoreNameEn = document.getElementById("cfgStoreNameEn");
+const cfgStoreNameAr = document.getElementById("cfgStoreNameAr");
+const cfgWhatsappNumber = document.getElementById("cfgWhatsappNumber");
+const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+
 const addItemForm = document.getElementById("addItemForm");
 const editItemIdInput = document.getElementById("editItemId");
 const itemNameInput = document.getElementById("itemNameInput");
@@ -304,6 +362,10 @@ function t(key, ...args) {
   return typeof val === "function" ? val(...args) : val;
 }
 
+function getStoreTitle() {
+  return currentLang === "ar" && storeSettings.nameAr ? storeSettings.nameAr : storeSettings.name;
+}
+
 function getLocalizedName(item) {
   return currentLang === "ar" && item.nameAr ? item.nameAr : item.name;
 }
@@ -317,7 +379,7 @@ function getLocalizedTag(item) {
 }
 
 function formatPrice(amount) {
-  return `${Number(amount).toFixed(STORE_CONFIG.decimals)} ${STORE_CONFIG.currency}`;
+  return `${Number(amount).toFixed(storeSettings.decimals)} ${storeSettings.currency}`;
 }
 
 function parseAddons(raw) {
@@ -339,10 +401,10 @@ function stringifyAddons(addons) {
   return addons.map(a => `${a.name}:${a.price}`).join(", ");
 }
 
-// ===== ৪. ভাষা (EN / AR) ও RTL প্রয়োগ =====
+// ===== ৪. ভাষা (EN / AR) ও RTL =====
 function applyLanguage(lang) {
   currentLang = lang === "ar" ? "ar" : "en";
-  localStorage.setItem(STORE_CONFIG.langKey, currentLang);
+  localStorage.setItem(APP_META.langKey, currentLang);
 
   document.documentElement.lang = currentLang;
   document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
@@ -351,20 +413,18 @@ function applyLanguage(lang) {
     btn.classList.toggle("active", btn.dataset.lang === currentLang);
   });
 
-  document.getElementById("storeName").textContent =
-    currentLang === "ar" ? STORE_CONFIG.nameAr : STORE_CONFIG.name;
+  document.getElementById("storeName").textContent = getStoreTitle();
   document.getElementById("storeSubtitle").textContent = t("subtitle");
-  toggleAdminBtn.textContent = t("menuEditor");
+  toggleAdminBtn.textContent = t("adminBtn", isAdminAuthenticated);
+  lockAdminBtn.textContent = t("lockAdmin");
   searchInput.placeholder = t("searchPlaceholder");
-  hideSoldOutLabel.textContent = t("hideSoldOut");
+  document.getElementById("hideSoldOutLabel").textContent = t("hideSoldOut");
 
-  // Sort options
   sortSelect.options[0].textContent = t("sortDefault");
   sortSelect.options[1].textContent = t("sortPriceAsc");
   sortSelect.options[2].textContent = t("sortPriceDesc");
   sortSelect.options[3].textContent = t("sortNameAsc");
 
-  // Category tabs
   const tabs = categoryTabs.querySelectorAll(".tab");
   tabs[0].textContent = t("catAll");
   tabs[1].textContent = t("catDessert");
@@ -372,13 +432,18 @@ function applyLanguage(lang) {
   tabs[3].textContent = t("catCombo");
   tabs[4].textContent = t("catSnacks");
 
-  // Editor labels
+  // Settings & Editor labels
+  document.getElementById("settingsHeading").textContent = t("settingsHeading");
+  document.getElementById("lblCfgNameEn").textContent = t("lblCfgNameEn");
+  document.getElementById("lblCfgNameAr").textContent = t("lblCfgNameAr");
+  document.getElementById("lblCfgWhatsapp").textContent = t("lblCfgWhatsapp");
+  saveSettingsBtn.textContent = t("saveSettings");
+
   document.getElementById("editorTitle").textContent = t("editorTitle");
   document.getElementById("editorSubtitle").textContent = t("editorSubtitle");
   document.getElementById("generate300Btn").textContent = t("load300");
   document.getElementById("exportJsonBtn").textContent = t("exportJson");
   document.getElementById("importJsonBtn").textContent = t("importJson");
-  document.getElementById("resetMenuBtn").textContent = t("reset");
   document.getElementById("lblItemName").textContent = t("lblItemName");
   document.getElementById("lblItemPrice").textContent = t("lblItemPrice");
   document.getElementById("lblItemCategory").textContent = t("lblItemCategory");
@@ -405,16 +470,18 @@ function applyLanguage(lang) {
 
   document.getElementById("checkoutTitle").textContent = t("checkoutTitle");
   document.getElementById("lblOrderType").textContent = t("lblOrderType");
-  document.getElementById("lblDeliveryOption").textContent = t("deliveryOption", formatPrice(STORE_CONFIG.deliveryFee));
+  document.getElementById("lblDeliveryOption").textContent = t("deliveryOption");
   document.getElementById("lblPickupOption").textContent = t("pickupOption");
   document.getElementById("lblCustomerName").textContent = t("lblCustomerName");
   document.getElementById("customerName").placeholder = t("customerNamePlaceholder");
   document.getElementById("lblCustomerAddress").textContent = t("lblCustomerAddress");
   document.getElementById("customerAddress").placeholder = t("customerAddressPlaceholder");
+  document.getElementById("shareLocationBtn").textContent = t("shareLocation");
   document.getElementById("lblOrderNote").textContent = t("lblOrderNote");
   document.getElementById("orderNote").placeholder = t("orderNotePlaceholder");
   document.getElementById("lblSubtotal").textContent = t("lblSubtotal");
   document.getElementById("lblDeliveryFee").textContent = t("lblDeliveryFee");
+  document.getElementById("deliveryAmount").textContent = t("freeText");
   document.getElementById("lblGrandTotal").textContent = t("lblGrandTotal");
   document.getElementById("sendWhatsappBtn").textContent = t("sendWhatsapp");
 
@@ -426,9 +493,62 @@ document.querySelectorAll(".lang-btn").forEach(btn => {
   btn.addEventListener("click", () => applyLanguage(btn.dataset.lang));
 });
 
-// ===== ৫. ফিল্টার, সর্ট ও রেন্ডারিং =====
+// ===== ৫. সহজ কার্ট অপারেশন (কাস্টমারদের জন্য) =====
+function getItemCartQty(itemId) {
+  return cart
+    .filter(c => c.itemId === itemId)
+    .reduce((sum, c) => sum + c.qty, 0);
+}
+
+window.quickAddItem = function (itemId) {
+  const item = allItems.find(x => x.id === itemId);
+  if (!item || item.available === false) return;
+
+  // যদি আইটেমের অ্যাড-অন থাকে, তাহলে কাস্টমাইজ মোডাল খুলবে
+  if (Array.isArray(item.addons) && item.addons.length > 0) {
+    openCustomizeModal(itemId);
+    return;
+  }
+
+  const key = `${item.id}_default`;
+  const idx = cart.findIndex(c => c.key === key);
+  if (idx > -1) {
+    cart[idx].qty += 1;
+  } else {
+    cart.push({
+      key,
+      itemId: item.id,
+      name: item.name,
+      nameAr: item.nameAr || item.name,
+      addons: [],
+      note: "",
+      unitPrice: Number(item.price),
+      qty: 1
+    });
+  }
+
+  updateCartUI();
+  renderGrid();
+};
+
+window.quickChangeItemQty = function (itemId, delta) {
+  // সর্বশেষ যুক্ত হওয়া এন্ট্রি বা প্রথম ম্যাচিং আইটেমের qty বদলাবে
+  for (let i = cart.length - 1; i >= 0; i--) {
+    if (cart[i].itemId === itemId) {
+      cart[i].qty += delta;
+      if (cart[i].qty <= 0) {
+        cart.splice(i, 1);
+      }
+      break;
+    }
+  }
+  updateCartUI();
+  renderGrid();
+};
+
+// ===== ৬. ফিল্টার, সর্ট ও মেনু কার্ড রেন্ডারিং =====
 function refreshCatalog(resetLimit = true) {
-  if (resetLimit) visibleLimit = STORE_CONFIG.itemsPerPage;
+  if (resetLimit) visibleLimit = APP_META.itemsPerPage;
   itemCounterBadge.textContent = t("itemsCount", allItems.length);
 
   filteredItems = allItems.filter(item => {
@@ -452,7 +572,7 @@ function refreshCatalog(resetLimit = true) {
   }
 
   renderGrid();
-  if (!adminPanel.classList.contains("hidden")) {
+  if (isAdminAuthenticated && !adminPanel.classList.contains("hidden")) {
     renderEditorList();
   }
 }
@@ -481,6 +601,32 @@ function renderGrid() {
         ? `<img src="${item.image}" alt="${title}" class="menu-card-img" loading="lazy" />`
         : "";
 
+      const qtyInCart = getItemCartQty(item.id);
+      const hasOptions = Array.isArray(item.addons) && item.addons.length > 0;
+
+      let actionHtml = "";
+      if (!available) {
+        actionHtml = `<button type="button" class="btn-add" disabled>${t("soldOutBtn")}</button>`;
+      } else if (qtyInCart > 0) {
+        actionHtml = `
+          <div class="card-qty-stepper">
+            <button type="button" onclick="quickChangeItemQty(${item.id}, -1)">-</button>
+            <span>${qtyInCart}</span>
+            <button type="button" onclick="quickAddItem(${item.id})">+</button>
+          </div>
+        `;
+      } else {
+        const optBtn = hasOptions
+          ? `<button type="button" class="btn-customize" onclick="openCustomizeModal(${item.id})">${t("customizeBtn")}</button>`
+          : "";
+        actionHtml = `
+          <div class="card-action-group">
+            ${optBtn}
+            <button type="button" class="btn-add" onclick="quickAddItem(${item.id})">${t("addBtn")}</button>
+          </div>
+        `;
+      }
+
       return `
         <article class="menu-card ${!available ? "unavailable" : ""}">
           ${img}
@@ -492,9 +638,7 @@ function renderGrid() {
             </div>
             <div class="card-footer">
               <span class="price">${formatPrice(item.price)}</span>
-              <button type="button" class="btn-add" ${!available ? "disabled" : ""} onclick="openCustomizeModal(${item.id})">
-                ${available ? t("addBtn") : t("soldOutBtn")}
-              </button>
+              ${actionHtml}
             </div>
           </div>
         </article>
@@ -511,7 +655,7 @@ function renderGrid() {
 }
 
 loadMoreBtn.onclick = () => {
-  visibleLimit += STORE_CONFIG.itemsPerPage;
+  visibleLimit += APP_META.itemsPerPage;
   renderGrid();
 };
 
@@ -538,11 +682,59 @@ hideSoldOutCheckbox.addEventListener("change", e => {
   refreshCatalog(true);
 });
 
-// ===== ৬. ফ্রন্টএন্ড এডিটর ও ৩০০+ ডেমো জেনারেটর =====
+// ===== ৭. পিন-সুরক্ষিত এডমিন ও ফ্রন্টএন্ড WhatsApp সেটিংস =====
+function populateSettingsInputs() {
+  cfgStoreNameEn.value = storeSettings.name || "";
+  cfgStoreNameAr.value = storeSettings.nameAr || "";
+  cfgWhatsappNumber.value = storeSettings.whatsappNumber || "";
+}
+
+function lockAdminSession() {
+  isAdminAuthenticated = false;
+  adminPanel.classList.add("hidden");
+  toggleAdminBtn.textContent = t("adminBtn", false);
+  toggleAdminBtn.classList.remove("active");
+}
+
 toggleAdminBtn.onclick = () => {
+  if (!isAdminAuthenticated) {
+    const enteredPin = prompt(t("pinPrompt"));
+    if (enteredPin === null) return;
+    if (enteredPin.trim() !== storeSettings.adminPin) {
+      alert(t("wrongPin"));
+      return;
+    }
+    isAdminAuthenticated = true;
+    toggleAdminBtn.textContent = t("adminBtn", true);
+    toggleAdminBtn.classList.add("active");
+    populateSettingsInputs();
+    adminPanel.classList.remove("hidden");
+    renderEditorList();
+    return;
+  }
+
   adminPanel.classList.toggle("hidden");
-  toggleAdminBtn.classList.toggle("active");
-  if (!adminPanel.classList.contains("hidden")) renderEditorList();
+  if (!adminPanel.classList.contains("hidden")) {
+    populateSettingsInputs();
+    renderEditorList();
+  }
+};
+
+lockAdminBtn.onclick = lockAdminSession;
+
+saveSettingsBtn.onclick = () => {
+  const cleanPhone = (cfgWhatsappNumber.value || "").replace(/[^\d]/g, "");
+  if (!cleanPhone || cleanPhone.length < 7) {
+    alert(t("invalidWhatsapp"));
+    return;
+  }
+  saveSettings({
+    name: cfgStoreNameEn.value.trim() || DEFAULT_SETTINGS.name,
+    nameAr: cfgStoreNameAr.value.trim() || DEFAULT_SETTINGS.nameAr,
+    whatsappNumber: cleanPhone
+  });
+  document.getElementById("storeName").textContent = getStoreTitle();
+  alert(t("settingsSaved"));
 };
 
 function compressImage(file) {
@@ -553,15 +745,15 @@ function compressImage(file) {
       img.onload = () => {
         let w = img.width;
         let h = img.height;
-        if (w > STORE_CONFIG.maxImageWidth) {
-          h = Math.round((h * STORE_CONFIG.maxImageWidth) / w);
-          w = STORE_CONFIG.maxImageWidth;
+        if (w > APP_META.maxImageWidth) {
+          h = Math.round((h * APP_META.maxImageWidth) / w);
+          w = APP_META.maxImageWidth;
         }
         const canvas = document.createElement("canvas");
         canvas.width = w;
         canvas.height = h;
         canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-        const dataUrl = canvas.toDataURL("image/jpeg", STORE_CONFIG.imageQuality);
+        const dataUrl = canvas.toDataURL("image/jpeg", APP_META.imageQuality);
         const kb = Math.round((dataUrl.length * 3) / 4 / 1024);
         resolve({ dataUrl, kb });
       };
@@ -643,13 +835,13 @@ addItemForm.onsubmit = e => {
     allItems.unshift({
       id: Date.now() + Math.floor(Math.random() * 1000),
       name,
-      nameAr: currentLang === "ar" ? name : name,
+      nameAr: name,
       price,
       category,
       tag,
-      tagAr: currentLang === "ar" ? tag : tag,
+      tagAr: tag,
       desc,
-      descAr: currentLang === "ar" ? desc : desc,
+      descAr: desc,
       addons,
       image: formImageData,
       available: true
@@ -729,7 +921,7 @@ adminSearchInput.addEventListener("input", e => {
   renderEditorList();
 });
 
-// ৩০০ ডেমো আইটেম জেনারেটর (EN + AR)
+// ৩০০ ডেমো আইটেম জেনারেটর
 document.getElementById("generate300Btn").onclick = () => {
   const cats = ["dessert", "drinks", "combo", "snacks"];
   const tagsEn = ["Bestseller", "New", "Crispy", "Chilled", "Special"];
@@ -750,7 +942,7 @@ document.getElementById("generate300Btn").onclick = () => {
       image: "",
       desc: `Frontend catalog test item #${i} (${cat}).`,
       descAr: `صنف تجريبي للواجهة الأمامية #${i} (${cat}).`,
-      addons: [{ id: `d_${i}`, name: "Extra Drizzle", price: 0.200 }]
+      addons: []
     });
   }
   allItems = demo;
@@ -758,7 +950,7 @@ document.getElementById("generate300Btn").onclick = () => {
   refreshCatalog(true);
 };
 
-// JSON Export / Import / Reset
+// JSON Export / Import
 document.getElementById("exportJsonBtn").onclick = () => {
   const blob = new Blob([JSON.stringify(allItems, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -794,14 +986,7 @@ importJsonInput.onchange = e => {
   reader.readAsText(file);
 };
 
-document.getElementById("resetMenuBtn").onclick = () => {
-  localStorage.removeItem(STORE_CONFIG.storageKey);
-  allItems = [...INITIAL_ITEMS];
-  refreshCatalog(true);
-  resetEditorForm();
-};
-
-// ===== ৭. কার্ট ও WhatsApp চেকআউট =====
+// ===== ৮. কাস্টমাইজেশন মোডাল (অ্যাড-অন বা নোটের জন্য) =====
 const customModal = document.getElementById("customModal");
 const modalItemTitle = document.getElementById("modalItemTitle");
 const modalItemImg = document.getElementById("modalItemImg");
@@ -878,6 +1063,7 @@ document.getElementById("confirmAddBtn").onclick = () => {
   } else {
     cart.push({
       key,
+      itemId: currentModalItem.id,
       name: currentModalItem.name,
       nameAr: currentModalItem.nameAr || currentModalItem.name,
       addons: checked,
@@ -889,7 +1075,18 @@ document.getElementById("confirmAddBtn").onclick = () => {
 
   customModal.classList.add("hidden");
   updateCartUI();
+  renderGrid();
 };
+
+// ===== ৯. লাইভ লোকেশন (GPS) ও WhatsApp চেকআউট =====
+const checkoutModal = document.getElementById("checkoutModal");
+const cartItemsContainer = document.getElementById("cartItemsContainer");
+const subtotalAmount = document.getElementById("subtotalAmount");
+const deliveryAmount = document.getElementById("deliveryAmount");
+const grandTotalAmount = document.getElementById("grandTotalAmount");
+const addressGroup = document.getElementById("addressGroup");
+const customerAddressInput = document.getElementById("customerAddress");
+const locationStatus = document.getElementById("locationStatus");
 
 function updateCartUI() {
   const count = cart.reduce((s, i) => s + i.qty, 0);
@@ -905,13 +1102,6 @@ function updateCartUI() {
   renderCheckout();
 }
 
-const checkoutModal = document.getElementById("checkoutModal");
-const cartItemsContainer = document.getElementById("cartItemsContainer");
-const subtotalAmount = document.getElementById("subtotalAmount");
-const deliveryAmount = document.getElementById("deliveryAmount");
-const grandTotalAmount = document.getElementById("grandTotalAmount");
-const addressGroup = document.getElementById("addressGroup");
-
 document.getElementById("openCartBtn").onclick = () => {
   renderCheckout();
   checkoutModal.classList.remove("hidden");
@@ -924,6 +1114,33 @@ document.querySelectorAll('input[name="orderType"]').forEach(r => {
     renderCheckout();
   });
 });
+
+document.getElementById("shareLocationBtn").onclick = () => {
+  if (!navigator.geolocation) {
+    locationStatus.textContent = t("locationUnsupported");
+    locationStatus.className = "location-status error";
+    return;
+  }
+
+  locationStatus.textContent = t("gettingLocation");
+  locationStatus.className = "location-status";
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = pos.coords.latitude.toFixed(6);
+      const lng = pos.coords.longitude.toFixed(6);
+      const mapLink = `https://maps.google.com/?q=${lat},${lng}`;
+      customerAddressInput.value = mapLink;
+      locationStatus.textContent = t("locationCaptured");
+      locationStatus.className = "location-status";
+    },
+    () => {
+      locationStatus.textContent = t("locationDenied");
+      locationStatus.className = "location-status error";
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+};
 
 function renderCheckout() {
   if (!cart.length) {
@@ -952,17 +1169,16 @@ function renderCheckout() {
   }
 
   const subtotal = cart.reduce((s, i) => s + i.unitPrice * i.qty, 0);
-  const type = document.querySelector('input[name="orderType"]:checked').value;
-  const delivery = cart.length && type === "Delivery" ? STORE_CONFIG.deliveryFee : 0;
   subtotalAmount.textContent = formatPrice(subtotal);
-  deliveryAmount.textContent = formatPrice(delivery);
-  grandTotalAmount.textContent = formatPrice(subtotal + delivery);
+  deliveryAmount.textContent = t("freeText");
+  grandTotalAmount.textContent = formatPrice(subtotal);
 }
 
 window.changeCartQty = function (idx, delta) {
   cart[idx].qty += delta;
   if (cart[idx].qty <= 0) cart.splice(idx, 1);
   updateCartUI();
+  renderGrid();
   if (!cart.length) checkoutModal.classList.add("hidden");
 };
 
@@ -970,16 +1186,15 @@ document.getElementById("sendWhatsappBtn").onclick = () => {
   if (!cart.length) return;
   const name = document.getElementById("customerName").value.trim();
   const type = document.querySelector('input[name="orderType"]:checked').value;
-  const address = document.getElementById("customerAddress").value.trim();
+  const address = customerAddressInput.value.trim();
   const note = document.getElementById("orderNote").value.trim();
 
   if (!name) return alert(t("alertNameRequired"));
   if (type === "Delivery" && !address) return alert(t("alertAddressRequired"));
 
   const subtotal = cart.reduce((s, i) => s + i.unitPrice * i.qty, 0);
-  const delivery = type === "Delivery" ? STORE_CONFIG.deliveryFee : 0;
-  const total = subtotal + delivery;
-  const storeTitle = currentLang === "ar" ? STORE_CONFIG.nameAr : STORE_CONFIG.name;
+  const storeTitle = getStoreTitle();
+  const cleanPhone = (storeSettings.whatsappNumber || DEFAULT_SETTINGS.whatsappNumber).replace(/[^\d]/g, "");
 
   const lines = [
     t("waHeader", storeTitle),
@@ -1001,11 +1216,11 @@ document.getElementById("sendWhatsappBtn").onclick = () => {
   lines.push(
     `-------------------------`,
     t("waSubtotal", formatPrice(subtotal)),
-    t("waDelivery", formatPrice(delivery)),
-    t("waTotal", formatPrice(total))
+    t("waDelivery"),
+    t("waTotal", formatPrice(subtotal))
   );
 
-  window.open(`https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
+  window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
 };
 
 applyLanguage(currentLang);
