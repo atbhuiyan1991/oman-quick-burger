@@ -1,2 +1,0 @@
-# oman-quick-burger
-restaurant
