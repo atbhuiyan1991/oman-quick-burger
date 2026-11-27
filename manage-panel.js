@@ -1,6 +1,6 @@
 const SUPABASE_CONFIG = {
-  url: "https://YOUR-PROJECT-ID.supabase.co",
-  anonKey: "YOUR-SUPABASE-ANON-KEY",
+  url: "https://qousjrvywsizjkyjwjfi.supabase.co/rest/v1/",
+  anonKey: "sb_publishable_roX4o-dnsY3frXVqLfXEsQ_42Y_EYiL",
   table: "menu_items",
   settingsTable: "store_settings",
   categoriesTable: "categories",
