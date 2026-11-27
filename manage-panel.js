@@ -1,6 +1,6 @@
 const SUPABASE_CONFIG = {
-  url: "https://YOUR-PROJECT-ID.supabase.co",
-  anonKey: "YOUR-SUPABASE-ANON-KEY",
+  url: "https://qousjrvywsizjkyjwjfi.supabase.co",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvdXNqcnZ5d3NpempreWp3amZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU3NDcyMTQsImV4cCI6MjExMTMyMzIxNH0._TMWM4_aARaWpgjd7c_jsx4xm4mxjtJLC31EwV0Ny4M",
   table: "menu_items",
   settingsTable: "store_settings",
   categoriesTable: "categories",
