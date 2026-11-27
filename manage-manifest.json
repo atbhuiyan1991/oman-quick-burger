@@ -1,0 +1,18 @@
+{
+  "id": "./manage-panel.html",
+  "name": "Oman Quick Burger Admin",
+  "short_name": "OQB Admin",
+  "description": "Admin panel for Oman Quick Burger — manage menu items, categories and WhatsApp settings",
+  "start_url": "./manage-panel.html",
+  "scope": "./manage-panel.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1115",
+  "theme_color": "#0f1115",
+  "icons": [
+    { "src": "admin-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "admin-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "admin-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "admin-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

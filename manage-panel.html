@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oman Quick Burger | Admin Panel</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- Admin PWA (installable app) -->
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="OQB Admin" />
+  <link rel="manifest" href="manage-manifest.json" />
+  <link rel="apple-touch-icon" href="admin-icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-content">
+      <div>
+        <h1>Oman Quick Burger — Admin Panel</h1>
+        <p class="subtitle">Sign in with Supabase Auth to manage categories, settings, and menu items.</p>
+      </div>
+      <div class="header-actions">
+        <a href="./index.html" class="btn-outline">View Menu</a>
+        <button type="button" class="btn-danger-outline hidden" id="logoutBtn">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="max-width: 920px; margin-top: 24px;">
+    <section class="admin-card" id="loginSection" style="max-width: 440px; margin: 24px auto;">
+      <h2>Admin Sign In</h2>
+      <p class="subtitle">Enter your Supabase admin email and password.</p>
+      <form id="loginForm" class="admin-form" style="margin-top: 16px;">
+        <div class="form-group">
+          <label for="adminEmail">Email</label>
+          <input type="email" id="adminEmail" required />
+        </div>
+        <div class="form-group">
+          <label for="adminPassword">Password</label>
+          <input type="password" id="adminPassword" required />
+        </div>
+        <button type="submit" class="btn-primary" id="loginSubmitBtn">Sign In</button>
+      </form>
+      <p id="loginError" class="subtitle" style="color: #f87171; margin-top: 10px;"></p>
+    </section>
+
+    <section class="admin-card hidden" id="managementSection">
+      <div class="settings-box">
+        <h3>Store & WhatsApp Settings</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="cfgStoreNameEn">Store Name (EN)</label>
+            <input type="text" id="cfgStoreNameEn" />
+          </div>
+          <div class="form-group">
+            <label for="cfgStoreNameAr">Store Name (AR)</label>
+            <input type="text" id="cfgStoreNameAr" />
+          </div>
+          <div class="form-group">
+            <label for="cfgWhatsappNumber">WhatsApp Number (with country code)</label>
+            <input type="tel" id="cfgWhatsappNumber" placeholder="9689XXXXXXX" />
+          </div>
+          <div class="form-group settings-save-wrap">
+            <button type="button" class="btn-primary" id="saveSettingsBtn">Save Settings</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-box">
+        <h3>Categories (Default + Custom)</h3>
+        <form id="addCategoryForm" class="cat-add-form">
+          <input type="text" id="newCatEnInput" placeholder="New Category (EN) e.g. Shawarma" required />
+          <input type="text" id="newCatArInput" placeholder="تصنيف جديد (AR) مثال: شاورما" />
+          <button type="submit" class="btn-secondary" id="addCatBtn">+ Add Category</button>
+        </form>
+        <div class="cat-chips-wrap" id="adminCategoryChips"></div>
+      </div>
+
+      <form id="addItemForm" class="admin-form">
+        <input type="hidden" id="editItemId" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="itemNameInput">Item Name *</label>
+            <input type="text" id="itemNameInput" placeholder="Classic Beef Burger" required />
+          </div>
+          <div class="form-group">
+            <label for="itemPriceInput">Price *</label>
+            <input type="number" step="0.001" min="0" id="itemPriceInput" placeholder="1.500" required />
+            <div class="sub-field-box">
+              <label for="itemVariantsInput">Variants / Sizes (Optional)</label>
+              <input type="text" id="itemVariantsInput" placeholder="Small:1.500, Large:2.500" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="itemCategoryInput">Category</label>
+            <select id="itemCategoryInput"></select>
+          </div>
+          <div class="form-group">
+            <label for="itemTagInput">Badge / Tag</label>
+            <input type="text" id="itemTagInput" placeholder="Bestseller" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="itemImageInput">Photo (Uploads to Supabase Storage)</label>
+          <div class="image-upload-row">
+            <input type="file" id="itemImageInput" accept="image/*" />
+            <button type="button" class="btn-secondary hidden" id="removeImageBtn">Remove Photo</button>
+          </div>
+          <div class="image-preview-box hidden" id="imagePreviewBox">
+            <img id="imagePreviewImg" alt="Preview" />
+            <span id="imageSizeInfo"></span>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="itemNameArInput">Item Name (AR) - optional</label>
+            <input type="text" id="itemNameArInput" dir="rtl" placeholder="برجر لحم كلاسيكي" />
+          </div>
+          <div class="form-group">
+            <label for="itemTagArInput">Badge / Tag (AR) - optional</label>
+            <input type="text" id="itemTagArInput" dir="rtl" placeholder="الأكثر مبيعاً" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="itemDescInput">Short Description</label>
+          <input type="text" id="itemDescInput" placeholder="Short description of the item..." />
+        </div>
+
+        <div class="form-group">
+          <label for="itemDescArInput">Short Description (AR) - optional</label>
+          <input type="text" id="itemDescArInput" dir="rtl" placeholder="وصف مختصر للصنف..." />
+        </div>
+
+        <div class="form-group">
+          <label for="itemAddonsInput">Add-ons (Format: Name:Price, comma separated)</label>
+          <input type="text" id="itemAddonsInput" placeholder="Extra Cheese:0.200, Spicy Sauce:0.150" />
+        </div>
+
+        <div class="admin-form-actions">
+          <button type="submit" class="btn-primary" id="saveItemBtn">+ Add Item</button>
+          <button type="button" class="btn-secondary hidden" id="cancelEditBtn">Cancel</button>
+        </div>
+      </form>
+
+      <div class="form-group">
+        <input type="text" id="adminSearchInput" placeholder="Search items in editor list..." />
+      </div>
+      <div class="admin-items-list" id="adminItemsList"></div>
+    </section>
+  </main>
+
+  <script src="manage-panel.js"></script>
+  <script>
+    // Register service worker so the admin panel can be installed as an app
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js").catch(function () {});
+      });
+    }
+  </script>
+</body>
+</html>
