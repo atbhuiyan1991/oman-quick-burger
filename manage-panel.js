@@ -126,7 +126,7 @@ function saveCategories() {
 
 function loadSession() {
   try {
-    const raw = sessionStorage.getItem(APP_META.sessionKey);
+    const raw = localStorage.getItem(APP_META.sessionKey);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -136,9 +136,9 @@ function loadSession() {
 function saveSession(sess) {
   authSession = sess;
   if (sess) {
-    sessionStorage.setItem(APP_META.sessionKey, JSON.stringify(sess));
+    localStorage.setItem(APP_META.sessionKey, JSON.stringify(sess));
   } else {
-    sessionStorage.removeItem(APP_META.sessionKey);
+    localStorage.removeItem(APP_META.sessionKey);
   }
 }
 
