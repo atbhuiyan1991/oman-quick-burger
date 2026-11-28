@@ -589,7 +589,7 @@ addItemForm.onsubmit = async e => {
   const parsedVariants = parseNamePriceList(itemVariantsInput.value, "var");
   const variants = parsedVariants.length >= 2 ? parsedVariants : [];
   const category = itemCategoryInput.value;
-  const tag = itemTagInput.value.trim() || "Fresh";
+  const tag = itemTagInput.value.trim();
   const desc = itemDescInput.value.trim();
   const nameAr = itemNameArInput.value.trim() || name;
   const tagAr = itemTagArInput.value.trim() || tag;
