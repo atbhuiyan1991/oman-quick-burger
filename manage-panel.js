@@ -32,8 +32,8 @@ const APP_META = {
   categoriesKey: "oman_quick_burger_categories_v1",
   settingsKey: "oman_quick_burger_settings_v1",
   sessionKey: "oman_quick_burger_sb_session_v1",
-  maxImageWidth: 1000,
-  imageQuality: 0.85
+  maxImageWidth: 800,
+  imageQuality: 0.78
 };
 
 const DEFAULT_CATEGORIES = [
